@@ -57,15 +57,14 @@
         optFlags = pkgs.lib.optionals optimize [ "-O3" ]
           ++ pkgs.lib.optionals (march != null) [ "-march=${march}" ]
           ++ pkgs.lib.optionals fastMath [ "-ffast-math" ]
-          ++ pkgs.lib.optionals lto [ "-flto=thin" ];
+          ++ pkgs.lib.optionals lto [ "-flto" ];
         optFlagsStr = builtins.concatStringsSep " " optFlags;
       in pkgs.stdenv.mkDerivation {
         pname = "lvgl";
         version = "9.2.0";
         src = lvgl-src;
 
-        nativeBuildInputs = with pkgs; [ cmake ninja pkg-config ]
-          ++ pkgs.lib.optionals lto [ pkgs.llvmPackages.bintools ];
+        nativeBuildInputs = with pkgs; [ cmake ninja pkg-config ];
 
         buildInputs =
           [ pkgs.libGL pkgs.mesa ]
@@ -149,18 +148,16 @@ ${montserratDefines}
 EOF
         '';
 
+        env = pkgs.lib.optionalAttrs (optFlagsStr != "") {
+          NIX_CFLAGS_COMPILE = optFlagsStr;
+        };
+
         cmakeFlags = [
           "-DBUILD_SHARED_LIBS=${if shared then "ON" else "OFF"}"
           "-DCMAKE_BUILD_TYPE=Release"
           "-DLV_CONF_PATH=${placeholder "out"}/include/lv_conf.h"
           "-DCONFIG_LV_BUILD_DEMOS=OFF"
           "-DCONFIG_LV_BUILD_EXAMPLES=OFF"
-        ] ++ pkgs.lib.optionals (optFlagsStr != "") [
-          "-DCMAKE_C_FLAGS=${optFlagsStr}"
-          "-DCMAKE_CXX_FLAGS=${optFlagsStr}"
-        ] ++ pkgs.lib.optionals lto [
-          "-DCMAKE_AR=${pkgs.llvmPackages.bintools}/bin/llvm-ar"
-          "-DCMAKE_RANLIB=${pkgs.llvmPackages.bintools}/bin/llvm-ranlib"
         ];
 
         postInstall = ''
