@@ -59,7 +59,7 @@ ${lib.concatStringsSep "\n" indexed}
 
 package lvgl
 
-foreign import lvgl_lib "system:lvgl"
+foreign import lvgl_lib "liblvgl.a"
 
 // === Opaque Types ===
 ${genOpaqueTypes bindings.opaqueTypes}

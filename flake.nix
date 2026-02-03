@@ -15,10 +15,7 @@
       pkgs = import nixpkgs { inherit system; };
 
       # Generate Odin bindings
-      mkOdinBindings = pkgs.runCommand "lvgl-odin-bindings" {} ''
-        mkdir -p $out
-        cp ${import ./binder.nix { inherit pkgs; }} $out/lvgl.odin
-      '';
+      odinBindingsFile = import ./binder.nix { inherit pkgs; };
 
       # Build LVGL with configurable options
       mkLvgl = {
@@ -172,7 +169,7 @@ EOF
         postInstall = ''
           ${pkgs.lib.optionalString odinBindings ''
             mkdir -p $out/odin
-            cp ${mkOdinBindings}/lvgl.odin $out/odin/
+            cp ${odinBindingsFile} $out/odin/lvgl.odin
           ''}
         '';
 
@@ -201,6 +198,5 @@ EOF
 
       # Expose mkLvgl for custom configurations
       lib.mkLvgl = mkLvgl;
-      lib.odinBindings = mkOdinBindings;
     };
 }
