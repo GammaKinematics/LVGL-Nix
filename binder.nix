@@ -59,8 +59,6 @@ ${lib.concatStringsSep "\n" indexed}
 
 package lvgl
 
-foreign import lvgl_lib "liblvgl.a"
-
 // === Opaque Types ===
 ${genOpaqueTypes bindings.opaqueTypes}
 
@@ -71,8 +69,9 @@ ${genEnums bindings.enums}
 ${genAliases bindings.aliases}
 
 // === Foreign Functions ===
+// Library linked via extra-linker-flags (NixOS workaround for Odin -l:/path bug)
 @(default_calling_convention = "c")
-foreign lvgl_lib {
+foreign {
 ${genFunctions bindings.functions}
 }
 
