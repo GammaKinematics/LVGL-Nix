@@ -80,6 +80,14 @@ LV_SIZE_CONTENT :: -1
 LV_PCT :: proc(x: i32) -> i32 { return 2000 + x }  // Percentage size
 LV_OPA_TRANSP :: 0
 LV_OPA_COVER :: 255
+
+// === Helper Functions (C macros reimplemented in Odin) ===
+lv_obj_set_style_pad_all :: proc(obj: ^lv_obj_t, value: i32, selector: u32) {
+    lv_obj_set_style_pad_top(obj, value, selector)
+    lv_obj_set_style_pad_bottom(obj, value, selector)
+    lv_obj_set_style_pad_left(obj, value, selector)
+    lv_obj_set_style_pad_right(obj, value, selector)
+}
 '';
 
 in pkgs.writeText "lvgl.odin" odinSource

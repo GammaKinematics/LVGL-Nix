@@ -164,8 +164,8 @@
       args = [{ name = "scr"; type = "^lv_obj_t"; }];
     };
 
-    # === GLFW Window ===
-    lv_glfw_window_create = {
+    # === GLFW Window (OpenGL ES backend) ===
+    lv_opengles_glfw_window_create = {
       ret = "^lv_display_t";
       args = [
         { name = "hor_res"; type = "i32"; }
@@ -173,7 +173,7 @@
       ];
     };
 
-    lv_glfw_window_set_title = {
+    lv_opengles_glfw_window_set_title = {
       ret = "void";
       args = [
         { name = "disp"; type = "^lv_display_t"; }
@@ -466,14 +466,7 @@
       ];
     };
 
-    lv_obj_set_style_pad_all = {
-      ret = "void";
-      args = [
-        { name = "obj"; type = "^lv_obj_t"; }
-        { name = "value"; type = "i32"; }
-        { name = "selector"; type = "u32"; }
-      ];
-    };
+    # Note: lv_obj_set_style_pad_all is a C macro, use Odin helper instead
 
     lv_obj_set_style_pad_top = {
       ret = "void";
