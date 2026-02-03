@@ -1,0 +1,45 @@
+{
+  "nodes": {
+    "lvgl-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1770060314,
+        "narHash": "sha256-mybZ1/xsIGNy3FzENbOPClTEJtNPoZ8ZhSj32EF8iww=",
+        "ref": "refs/heads/master",
+        "rev": "d6065bf94a279a9355f25e8404e5c39d93854ee5",
+        "shallow": true,
+        "type": "git",
+        "url": "https://github.com/lvgl/lvgl"
+      },
+      "original": {
+        "shallow": true,
+        "type": "git",
+        "url": "https://github.com/lvgl/lvgl"
+      }
+    },
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1770019141,
+        "narHash": "sha256-VKS4ZLNx4PNrABoB0L8KUpc1fE7CLpQXQs985tGfaCU=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "cb369ef2efd432b3cdf8622b0ffc0a97a02f3137",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "root": {
+      "inputs": {
+        "lvgl-src": "lvgl-src",
+        "nixpkgs": "nixpkgs"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}

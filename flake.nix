@@ -37,14 +37,12 @@
 
         nativeBuildInputs = with pkgs; [ cmake ninja pkg-config ];
 
-        buildInputs = with pkgs; [
-          # OpenGL
-          libGL mesa
-        ]
-        ++ pkgs.lib.optionals glfw [ glfw glew ]
-        ++ pkgs.lib.optionals wayland [ wayland wayland-protocols libxkbcommon ]
-        ++ pkgs.lib.optionals x11 [ xorg.libX11 ]
-        ++ pkgs.lib.optionals evdev [ libevdev ];
+        buildInputs =
+          [ pkgs.libGL pkgs.mesa ]
+          ++ pkgs.lib.optionals glfw [ pkgs.glfw pkgs.glew ]
+          ++ pkgs.lib.optionals wayland [ pkgs.wayland pkgs.wayland-protocols pkgs.libxkbcommon ]
+          ++ pkgs.lib.optionals x11 [ pkgs.xorg.libX11 ]
+          ++ pkgs.lib.optionals evdev [ pkgs.libevdev ];
 
         # Generate lv_conf.h
         postPatch = ''
@@ -107,28 +105,11 @@ EOF
           "-DLV_CONF_PATH=${placeholder "out"}/include/lv_conf.h"
         ];
 
-        # Install headers alongside library
+        # LVGL CMake already installs headers to $out/include/lvgl/
+        # Just ensure lv_conf.h is in the right place
         postInstall = ''
-          mkdir -p $out/include
-          cp lv_conf.h $out/include/
-          cp -r src/*.h $out/include/
-          cp -r src/core $out/include/
-          cp -r src/draw $out/include/
-          cp -r src/misc $out/include/
-          cp -r src/widgets $out/include/
-          cp -r src/display $out/include/
-          cp -r src/drivers $out/include/
-          cp -r src/font $out/include/
-          cp -r src/indev $out/include/
-          cp -r src/layouts $out/include/
-          cp -r src/libs $out/include/
-          cp -r src/lv_api_map*.h $out/include/ 2>/dev/null || true
-          cp -r src/others $out/include/
-          cp -r src/stdlib $out/include/
-          cp -r src/themes $out/include/
-          cp -r src/tick $out/include/
-          cp -r src/osal $out/include/
-          cp lvgl.h $out/include/
+          # lv_conf.h is already installed by CMake
+          true
         '';
 
         meta = {
