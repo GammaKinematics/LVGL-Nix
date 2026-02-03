@@ -14,6 +14,12 @@
       system = "x86_64-linux";
       pkgs = import nixpkgs { inherit system; };
 
+      # Generate Odin bindings
+      mkOdinBindings = pkgs.runCommand "lvgl-odin-bindings" {} ''
+        mkdir -p $out
+        cp ${import ./binder.nix { inherit pkgs; }} $out/lvgl.odin
+      '';
+
       # Build LVGL with configurable options
       mkLvgl = {
         # Library type
@@ -49,9 +55,12 @@
 
         # Compiler optimizations
         optimize ? true,         # -O3
-        lto ? false,             # -flto=thin
+        lto ? false,             # -flto
         march ? null,            # "native", "x86-64-v3", etc.
         fastMath ? false,        # -ffast-math
+
+        # Odin bindings
+        odinBindings ? false,
       }: let
         # Build optimization flags
         optFlags = pkgs.lib.optionals optimize [ "-O3" ]
@@ -161,7 +170,10 @@ EOF
         ];
 
         postInstall = ''
-          true
+          ${pkgs.lib.optionalString odinBindings ''
+            mkdir -p $out/odin
+            cp ${mkOdinBindings}/lvgl.odin $out/odin/
+          ''}
         '';
 
         meta = {
@@ -189,5 +201,6 @@ EOF
 
       # Expose mkLvgl for custom configurations
       lib.mkLvgl = mkLvgl;
+      lib.odinBindings = mkOdinBindings;
     };
 }
