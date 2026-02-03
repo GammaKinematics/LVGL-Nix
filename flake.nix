@@ -19,7 +19,7 @@
         # Library type
         shared ? false,
 
-        # Display backends
+        # Display backends (pick one)
         glfw ? true,
         wayland ? false,
         x11 ? false,
@@ -27,9 +27,25 @@
         # Features
         opengl ? true,
         evdev ? true,
+        tinyTtf ? false,
 
         # Config
         colorDepth ? 32,
+        dpi ? 130,
+        refreshPeriod ? 16,
+
+        # Logging
+        logging ? false,
+        logLevel ? "NONE",  # TRACE, INFO, WARN, ERROR, USER, NONE
+
+        # Fonts - Montserrat sizes to include (list of integers)
+        montserratSizes ? [ 14 16 20 ],
+        defaultFontSize ? 14,
+
+        # Special fonts
+        fontDejaVu ? false,      # Persian/Hebrew/Arabic
+        fontCjk ? false,         # Chinese/Japanese/Korean (14 and 16)
+        fontMonospace ? false,   # UNSCII 8 and 16
       }: pkgs.stdenv.mkDerivation {
         pname = "lvgl";
         version = "9.2.0";
@@ -45,7 +61,13 @@
           ++ pkgs.lib.optionals evdev [ pkgs.libevdev ];
 
         # Generate lv_conf.h
-        postPatch = ''
+        postPatch = let
+          # Generate Montserrat font defines
+          allMontserratSizes = [ 8 10 12 14 16 18 20 22 24 26 28 30 32 34 36 38 40 42 44 46 48 ];
+          montserratDefines = builtins.concatStringsSep "\n" (map (size:
+            "#define LV_FONT_MONTSERRAT_${toString size} ${if builtins.elem size montserratSizes then "1" else "0"}"
+          ) allMontserratSizes);
+        in ''
           cat > lv_conf.h << 'EOF'
 #ifndef LV_CONF_H
 #define LV_CONF_H
@@ -58,8 +80,8 @@
 #define LV_USE_STDLIB_SPRINTF LV_STDLIB_CLIB
 
 /* HAL */
-#define LV_DEF_REFR_PERIOD 16
-#define LV_DPI_DEF 130
+#define LV_DEF_REFR_PERIOD ${toString refreshPeriod}
+#define LV_DPI_DEF ${toString dpi}
 
 /* Display backends */
 #define LV_USE_GLFW ${if glfw then "1" else "0"}
@@ -82,14 +104,28 @@
 #define LV_USE_THORVG_INTERNAL 1
 
 /* Logging */
-#define LV_USE_LOG 1
-#define LV_LOG_LEVEL LV_LOG_LEVEL_WARN
+#define LV_USE_LOG ${if logging then "1" else "0"}
+#define LV_LOG_LEVEL LV_LOG_LEVEL_${logLevel}
 #define LV_LOG_PRINTF 1
 
-/* Fonts */
-#define LV_FONT_MONTSERRAT_14 1
-#define LV_FONT_MONTSERRAT_16 1
-#define LV_FONT_MONTSERRAT_20 1
+/* Fonts - Montserrat */
+${montserratDefines}
+
+/* Special fonts */
+#define LV_FONT_MONTSERRAT_28_COMPRESSED 0
+#define LV_FONT_DEJAVU_16_PERSIAN_HEBREW ${if fontDejaVu then "1" else "0"}
+#define LV_FONT_SOURCE_HAN_SANS_SC_14_CJK ${if fontCjk then "1" else "0"}
+#define LV_FONT_SOURCE_HAN_SANS_SC_16_CJK ${if fontCjk then "1" else "0"}
+#define LV_FONT_UNSCII_8 ${if fontMonospace then "1" else "0"}
+#define LV_FONT_UNSCII_16 ${if fontMonospace then "1" else "0"}
+
+#define LV_FONT_DEFAULT &lv_font_montserrat_${toString defaultFontSize}
+
+/* Runtime font loading */
+#define LV_USE_TINY_TTF ${if tinyTtf then "1" else "0"}
+#if LV_USE_TINY_TTF
+    #define LV_TINY_TTF_FILE_SUPPORT 1
+#endif
 
 /* Assert */
 #define LV_ASSERT_HANDLER_INCLUDE <assert.h>
@@ -103,12 +139,11 @@ EOF
           "-DBUILD_SHARED_LIBS=${if shared then "ON" else "OFF"}"
           "-DCMAKE_BUILD_TYPE=Release"
           "-DLV_CONF_PATH=${placeholder "out"}/include/lv_conf.h"
+          "-DCONFIG_LV_BUILD_DEMOS=OFF"
+          "-DCONFIG_LV_BUILD_EXAMPLES=OFF"
         ];
 
-        # LVGL CMake already installs headers to $out/include/lvgl/
-        # Just ensure lv_conf.h is in the right place
         postInstall = ''
-          # lv_conf.h is already installed by CMake
           true
         '';
 
@@ -122,7 +157,7 @@ EOF
 
     in {
       packages.${system} = {
-        # Default: static library with GLFW + OpenGL
+        # Default: static library with GLFW + OpenGL + TinyTTF
         default = mkLvgl { };
 
         # Static variants
