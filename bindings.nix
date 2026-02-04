@@ -1,722 +1,282 @@
 # LVGL Odin Bindings - Declarative specification
-# Types use Odin syntax, pointers are ^Type
+# Types are auto-parsed from LVGL headers
+{ lvglSrc }:
 {
-  # Opaque types (forward declarations)
+  # C to Odin type mapping
+  typeMap = {
+    # Primitives
+    "void" = "void";
+    "bool" = "bool";
+    "char" = "u8";
+    "int" = "i32";
+    "unsigned" = "u32";
+    "unsigned int" = "u32";
+    "float" = "f32";
+    "double" = "f64";
+
+    # Fixed-width integers
+    "int8_t" = "i8";
+    "int16_t" = "i16";
+    "int32_t" = "i32";
+    "int64_t" = "i64";
+    "uint8_t" = "u8";
+    "uint16_t" = "u16";
+    "uint32_t" = "u32";
+    "uint64_t" = "u64";
+    "size_t" = "uint";
+
+    # Strings
+    "char *" = "cstring";
+    "const char *" = "cstring";
+    "char const *" = "cstring";  # Alternative order
+
+    # Void pointers
+    "void *" = "rawptr";
+    "const void *" = "rawptr";
+    "void const *" = "rawptr";  # Alternative order
+
+    # Image descriptor (const pointer)
+    "lv_image_dsc_t const *" = "^lv_image_dsc_t";
+    "const lv_image_dsc_t *" = "^lv_image_dsc_t";
+
+    # Internal/external types (not LVGL public API)
+    "struct _lv_obj_t" = "lv_obj_t";
+    "struct _lv_obj_t *" = "^lv_obj_t";
+    "GLFWwindow *" = "rawptr";  # External GLFW type
+  };
+
+  # Typedefs - parsed from headers
+  typedefs = [
+    { name = "lv_opa_t"; header = "src/misc/lv_types.h"; }
+    { name = "lv_style_selector_t"; header = "src/core/lv_obj_style.h"; }
+    { name = "lv_anim_enable_t"; header = "src/misc/lv_anim.h"; }
+  ];
+
+  # Opaque types - only used via pointers, no field access
   opaqueTypes = [
     "lv_obj_t"
     "lv_display_t"
     "lv_indev_t"
     "lv_group_t"
     "lv_event_t"
+    "lv_event_dsc_t"
     "lv_anim_t"
     "lv_timer_t"
     "lv_font_t"
     "lv_style_t"
     "lv_theme_t"
     "lv_draw_buf_t"
+    "lv_opengles_window_t"
+    "lv_opengles_window_texture_t"
+    "lv_image_dsc_t"
   ];
 
-  # Enums
-  enums = {
-    lv_flex_flow_t = [
-      "LV_FLEX_FLOW_ROW"
-      "LV_FLEX_FLOW_COLUMN"
-      "LV_FLEX_FLOW_ROW_WRAP"
-      "LV_FLEX_FLOW_COLUMN_WRAP"
-      "LV_FLEX_FLOW_ROW_REVERSE"
-      "LV_FLEX_FLOW_COLUMN_REVERSE"
-      "LV_FLEX_FLOW_ROW_WRAP_REVERSE"
-      "LV_FLEX_FLOW_COLUMN_WRAP_REVERSE"
-    ];
+  # Enums - parsed from headers
+  enums = [
+    { name = "lv_result_t"; header = "src/misc/lv_types.h"; }
+    { name = "lv_state_t"; header = "src/core/lv_obj_style.h"; }
+    { name = "lv_part_t"; header = "src/core/lv_obj_style.h"; }
+    { name = "lv_obj_flag_t"; header = "src/core/lv_obj.h"; }
+    { name = "lv_align_t"; header = "src/misc/lv_area.h"; }
+    { name = "lv_flex_flow_t"; header = "src/layouts/flex/lv_flex.h"; }
+    { name = "lv_flex_align_t"; header = "src/layouts/flex/lv_flex.h"; }
+    { name = "lv_event_code_t"; header = "src/misc/lv_event.h"; }
+    { name = "lv_text_align_t"; header = "src/misc/lv_text.h"; }
+    { name = "lv_label_long_mode_t"; header = "src/widgets/label/lv_label.h"; }
+  ];
 
-    lv_flex_align_t = [
-      "LV_FLEX_ALIGN_START"
-      "LV_FLEX_ALIGN_END"
-      "LV_FLEX_ALIGN_CENTER"
-      "LV_FLEX_ALIGN_SPACE_EVENLY"
-      "LV_FLEX_ALIGN_SPACE_AROUND"
-      "LV_FLEX_ALIGN_SPACE_BETWEEN"
-    ];
+  # Structs - parsed from headers
+  structs = [
+    { name = "lv_color_t"; header = "src/misc/lv_color.h"; }
+    { name = "lv_color32_t"; header = "src/misc/lv_color.h"; }
+    { name = "lv_area_t"; header = "src/misc/lv_area.h"; }
+    { name = "lv_point_t"; header = "src/misc/lv_area.h"; }
+  ];
 
-    lv_align_t = [
-      "LV_ALIGN_DEFAULT"
-      "LV_ALIGN_TOP_LEFT"
-      "LV_ALIGN_TOP_MID"
-      "LV_ALIGN_TOP_RIGHT"
-      "LV_ALIGN_BOTTOM_LEFT"
-      "LV_ALIGN_BOTTOM_MID"
-      "LV_ALIGN_BOTTOM_RIGHT"
-      "LV_ALIGN_LEFT_MID"
-      "LV_ALIGN_RIGHT_MID"
-      "LV_ALIGN_CENTER"
-    ];
+  # Macros - pattern matched from headers
+  macros = [
+    { pattern = "LV_FLEX_(COLUMN|WRAP|REVERSE)"; header = "src/layouts/flex/lv_flex.h"; }
+    { pattern = "LV_SYMBOL_[A-Z_]+"; header = "src/font/lv_symbol_def.h"; }
+    { pattern = "LV_COORD_TYPE_SHIFT"; header = "src/misc/lv_area.h"; }
+    { pattern = "LV_COORD_TYPE_SPEC"; header = "src/misc/lv_area.h"; }
+    { pattern = "LV_COORD_MAX"; header = "src/misc/lv_area.h"; }
+  ];
 
-    lv_event_code_t = [
-      "LV_EVENT_PRESSED"
-      "LV_EVENT_PRESSING"
-      "LV_EVENT_RELEASED"
-      "LV_EVENT_CLICKED"
-      "LV_EVENT_LONG_PRESSED"
-      "LV_EVENT_FOCUSED"
-      "LV_EVENT_DEFOCUSED"
-      "LV_EVENT_VALUE_CHANGED"
-      "LV_EVENT_READY"
-      "LV_EVENT_CANCEL"
-    ];
+  # Functions - parsed from headers
+  functions = [
+    # Core / Init
+    { name = "lv_init"; header = "src/lv_init.h"; }
+    { name = "lv_deinit"; header = "src/lv_init.h"; }
+    { name = "lv_timer_handler"; header = "src/misc/lv_timer.h"; }
+    { name = "lv_tick_inc"; header = "src/tick/lv_tick.h"; }
 
-    lv_state_t = [
-      "LV_STATE_DEFAULT"
-      "LV_STATE_CHECKED"
-      "LV_STATE_FOCUSED"
-      "LV_STATE_EDITED"
-      "LV_STATE_HOVERED"
-      "LV_STATE_PRESSED"
-      "LV_STATE_DISABLED"
-    ];
+    # Display
+    { name = "lv_display_get_default"; header = "src/display/lv_display.h"; }
+    { name = "lv_display_set_default"; header = "src/display/lv_display.h"; }
+    { name = "lv_display_get_horizontal_resolution"; header = "src/display/lv_display.h"; }
+    { name = "lv_display_get_vertical_resolution"; header = "src/display/lv_display.h"; }
+    { name = "lv_display_get_screen_active"; header = "src/display/lv_display.h"; }
+    { name = "lv_display_delete"; header = "src/display/lv_display.h"; }
+    { name = "lv_screen_active"; header = "src/display/lv_display.h"; }
+    { name = "lv_screen_load"; header = "src/display/lv_display.h"; }
+    { name = "lv_display_set_theme"; header = "src/display/lv_display.h"; }
 
-    lv_part_t = [
-      "LV_PART_MAIN"
-      "LV_PART_SCROLLBAR"
-      "LV_PART_INDICATOR"
-      "LV_PART_KNOB"
-      "LV_PART_SELECTED"
-      "LV_PART_ITEMS"
-      "LV_PART_CURSOR"
-      "LV_PART_CUSTOM_FIRST"
-    ];
+    # Themes
+    { name = "lv_theme_create"; header = "src/themes/lv_theme.h"; }
+    { name = "lv_theme_set_apply_cb"; header = "src/themes/lv_theme.h"; }
 
-    lv_obj_flag_t = [
-      "LV_OBJ_FLAG_HIDDEN"
-      "LV_OBJ_FLAG_CLICKABLE"
-      "LV_OBJ_FLAG_CLICK_FOCUSABLE"
-      "LV_OBJ_FLAG_CHECKABLE"
-      "LV_OBJ_FLAG_SCROLLABLE"
-      "LV_OBJ_FLAG_SCROLL_ELASTIC"
-      "LV_OBJ_FLAG_SCROLL_MOMENTUM"
-      "LV_OBJ_FLAG_SNAPPABLE"
-      "LV_OBJ_FLAG_PRESS_LOCK"
-      "LV_OBJ_FLAG_FLOATING"
-      "LV_OBJ_FLAG_OVERFLOW_VISIBLE"
-    ];
+    # OpenGL ES Window
+    { name = "lv_opengles_glfw_window_create"; header = "src/drivers/opengles/lv_opengles_glfw.h"; }
+    { name = "lv_opengles_glfw_window_set_title"; header = "src/drivers/opengles/lv_opengles_glfw.h"; }
+    { name = "lv_opengles_glfw_window_get_glfw_window"; header = "src/drivers/opengles/lv_opengles_glfw.h"; }
+    { name = "lv_opengles_window_display_create"; header = "src/drivers/opengles/lv_opengles_window.h"; }
+    { name = "lv_opengles_texture_create"; header = "src/drivers/opengles/lv_opengles_texture.h"; }
+    { name = "lv_opengles_texture_get_texture_id"; header = "src/drivers/opengles/lv_opengles_texture.h"; }
+    { name = "lv_opengles_window_add_texture"; header = "src/drivers/opengles/lv_opengles_window.h"; }
+    { name = "lv_opengles_window_texture_remove"; header = "src/drivers/opengles/lv_opengles_window.h"; }
 
-    lv_text_align_t = [
-      "LV_TEXT_ALIGN_AUTO"
-      "LV_TEXT_ALIGN_LEFT"
-      "LV_TEXT_ALIGN_CENTER"
-      "LV_TEXT_ALIGN_RIGHT"
-    ];
-  };
+    # X11 Window
+    { name = "lv_x11_window_create"; header = "src/drivers/x11/lv_x11.h"; }
+    { name = "lv_x11_inputs_create"; header = "src/drivers/x11/lv_x11.h"; }
+
+    # SDL Window
+    { name = "lv_sdl_window_create"; header = "src/drivers/sdl/lv_sdl_window.h"; }
+    { name = "lv_sdl_window_set_title"; header = "src/drivers/sdl/lv_sdl_window.h"; }
+    { name = "lv_sdl_window_set_resizeable"; header = "src/drivers/sdl/lv_sdl_window.h"; }
+    { name = "lv_sdl_window_set_zoom"; header = "src/drivers/sdl/lv_sdl_window.h"; }
+    { name = "lv_sdl_window_get_zoom"; header = "src/drivers/sdl/lv_sdl_window.h"; }
+    { name = "lv_sdl_quit"; header = "src/drivers/sdl/lv_sdl_window.h"; }
+
+    # SDL Input Devices (must be created explicitly!)
+    { name = "lv_sdl_mouse_create"; header = "src/drivers/sdl/lv_sdl_mouse.h"; }
+    { name = "lv_sdl_keyboard_create"; header = "src/drivers/sdl/lv_sdl_keyboard.h"; }
+    { name = "lv_sdl_mousewheel_create"; header = "src/drivers/sdl/lv_sdl_mousewheel.h"; }
+
+    # Object Core
+    { name = "lv_obj_create"; header = "src/core/lv_obj.h"; }
+    { name = "lv_obj_delete"; header = "src/core/lv_obj_tree.h"; }
+    { name = "lv_obj_clean"; header = "src/core/lv_obj_tree.h"; }
+    { name = "lv_obj_set_parent"; header = "src/core/lv_obj_tree.h"; }
+    { name = "lv_obj_get_parent"; header = "src/core/lv_obj_tree.h"; }
+
+    # Object Size / Position
+    { name = "lv_obj_set_size"; header = "src/core/lv_obj_pos.h"; }
+    { name = "lv_obj_set_width"; header = "src/core/lv_obj_pos.h"; }
+    { name = "lv_obj_set_height"; header = "src/core/lv_obj_pos.h"; }
+    { name = "lv_obj_set_pos"; header = "src/core/lv_obj_pos.h"; }
+    { name = "lv_obj_set_x"; header = "src/core/lv_obj_pos.h"; }
+    { name = "lv_obj_set_y"; header = "src/core/lv_obj_pos.h"; }
+    { name = "lv_obj_set_align"; header = "src/core/lv_obj_pos.h"; }
+    { name = "lv_obj_align"; header = "src/core/lv_obj_pos.h"; }
+    { name = "lv_obj_center"; header = "src/core/lv_obj_pos.h"; }
+    { name = "lv_obj_get_width"; header = "src/core/lv_obj_pos.h"; }
+    { name = "lv_obj_get_height"; header = "src/core/lv_obj_pos.h"; }
+    { name = "lv_obj_get_x"; header = "src/core/lv_obj_pos.h"; }
+    { name = "lv_obj_get_y"; header = "src/core/lv_obj_pos.h"; }
+
+    # Object Flags
+    { name = "lv_obj_add_flag"; header = "src/core/lv_obj.h"; }
+    { name = "lv_obj_remove_flag"; header = "src/core/lv_obj.h"; }
+    { name = "lv_obj_has_flag"; header = "src/core/lv_obj.h"; }
+
+    # Object State
+    { name = "lv_obj_add_state"; header = "src/core/lv_obj.h"; }
+    { name = "lv_obj_remove_state"; header = "src/core/lv_obj.h"; }
+    { name = "lv_obj_has_state"; header = "src/core/lv_obj.h"; }
+
+    # Events
+    { name = "lv_obj_add_event_cb"; header = "src/core/lv_obj_event.h"; }
+    { name = "lv_event_get_code"; header = "src/misc/lv_event.h"; }
+    { name = "lv_event_get_target"; header = "src/misc/lv_event.h"; }
+    { name = "lv_event_get_user_data"; header = "src/misc/lv_event.h"; }
+
+    # Flex Layout
+    { name = "lv_obj_set_flex_flow"; header = "src/layouts/flex/lv_flex.h"; }
+    { name = "lv_obj_set_flex_align"; header = "src/layouts/flex/lv_flex.h"; }
+    { name = "lv_obj_set_flex_grow"; header = "src/layouts/flex/lv_flex.h"; }
+
+    # Styling
+    { name = "lv_obj_set_style_bg_color"; header = "src/core/lv_obj_style_gen.h"; }
+    { name = "lv_obj_set_style_bg_opa"; header = "src/core/lv_obj_style_gen.h"; }
+    { name = "lv_obj_set_style_text_color"; header = "src/core/lv_obj_style_gen.h"; }
+    { name = "lv_obj_set_style_text_font"; header = "src/core/lv_obj_style_gen.h"; }
+    { name = "lv_obj_set_style_radius"; header = "src/core/lv_obj_style_gen.h"; }
+    { name = "lv_obj_set_style_border_color"; header = "src/core/lv_obj_style_gen.h"; }
+    { name = "lv_obj_set_style_border_width"; header = "src/core/lv_obj_style_gen.h"; }
+    { name = "lv_obj_set_style_pad_top"; header = "src/core/lv_obj_style_gen.h"; }
+    { name = "lv_obj_set_style_pad_bottom"; header = "src/core/lv_obj_style_gen.h"; }
+    { name = "lv_obj_set_style_pad_left"; header = "src/core/lv_obj_style_gen.h"; }
+    { name = "lv_obj_set_style_pad_right"; header = "src/core/lv_obj_style_gen.h"; }
+    { name = "lv_obj_set_style_pad_row"; header = "src/core/lv_obj_style_gen.h"; }
+    { name = "lv_obj_set_style_pad_column"; header = "src/core/lv_obj_style_gen.h"; }
+    { name = "lv_obj_set_style_layout"; header = "src/core/lv_obj_style_gen.h"; }
+    { name = "lv_obj_set_style_outline_width"; header = "src/core/lv_obj_style_gen.h"; }
+    { name = "lv_obj_set_style_outline_color"; header = "src/core/lv_obj_style_gen.h"; }
+    { name = "lv_obj_set_style_outline_opa"; header = "src/core/lv_obj_style_gen.h"; }
+
+    # Coordinate helpers
+    { name = "lv_pct"; header = "src/misc/lv_area.h"; }
+
+    # Color helpers
+    { name = "lv_color_hex"; header = "src/misc/lv_color.h"; }
+    { name = "lv_color_make"; header = "src/misc/lv_color.h"; }
+    { name = "lv_color_white"; header = "src/misc/lv_color.h"; }
+    { name = "lv_color_black"; header = "src/misc/lv_color.h"; }
+
+    # Widgets: Label
+    { name = "lv_label_create"; header = "src/widgets/label/lv_label.h"; }
+    { name = "lv_label_set_text"; header = "src/widgets/label/lv_label.h"; }
+    { name = "lv_label_set_text_static"; header = "src/widgets/label/lv_label.h"; }
+    { name = "lv_label_get_text"; header = "src/widgets/label/lv_label.h"; }
+    { name = "lv_label_set_long_mode"; header = "src/widgets/label/lv_label.h"; }
+
+    # Widgets: Button
+    { name = "lv_button_create"; header = "src/widgets/button/lv_button.h"; }
+
+    # Widgets: Textarea
+    { name = "lv_textarea_create"; header = "src/widgets/textarea/lv_textarea.h"; }
+    { name = "lv_textarea_set_text"; header = "src/widgets/textarea/lv_textarea.h"; }
+    { name = "lv_textarea_get_text"; header = "src/widgets/textarea/lv_textarea.h"; }
+    { name = "lv_textarea_set_placeholder_text"; header = "src/widgets/textarea/lv_textarea.h"; }
+    { name = "lv_textarea_set_one_line"; header = "src/widgets/textarea/lv_textarea.h"; }
+    { name = "lv_textarea_set_password_mode"; header = "src/widgets/textarea/lv_textarea.h"; }
+    { name = "lv_textarea_add_char"; header = "src/widgets/textarea/lv_textarea.h"; }
+    { name = "lv_textarea_add_text"; header = "src/widgets/textarea/lv_textarea.h"; }
+    { name = "lv_textarea_delete_char"; header = "src/widgets/textarea/lv_textarea.h"; }
+    { name = "lv_textarea_delete_char_forward"; header = "src/widgets/textarea/lv_textarea.h"; }
+
+    # Widgets: Image
+    { name = "lv_image_create"; header = "src/widgets/image/lv_image.h"; }
+    { name = "lv_image_set_src"; header = "src/widgets/image/lv_image.h"; }
+    { name = "lv_image_set_scale"; header = "src/widgets/image/lv_image.h"; }
+    { name = "lv_image_set_rotation"; header = "src/widgets/image/lv_image.h"; }
+
+    # Scrolling
+    { name = "lv_obj_scroll_to"; header = "src/core/lv_obj_scroll.h"; }
+    { name = "lv_obj_scroll_by"; header = "src/core/lv_obj_scroll.h"; }
+    { name = "lv_obj_get_scroll_x"; header = "src/core/lv_obj_scroll.h"; }
+    { name = "lv_obj_get_scroll_y"; header = "src/core/lv_obj_scroll.h"; }
+
+    # Invalidation / Redraw
+    { name = "lv_obj_invalidate"; header = "src/core/lv_obj_pos.h"; }
+    { name = "lv_refr_now"; header = "src/core/lv_refr.h"; }
+  ];
 
   # Type aliases
   aliases = {
-    lv_coord_t = "i32";
-    lv_opa_t = "u8";
-    lv_color_t = "u32";  # ARGB8888 at 32-bit depth
     lv_event_cb_t = "proc \"c\" (e: ^lv_event_t)";
+    lv_theme_apply_cb_t = "proc \"c\" (theme: ^lv_theme_t, obj: ^lv_obj_t)";
   };
 
-  # Functions grouped by category
-  functions = {
-    # === Core / Init ===
-    lv_init = {
-      ret = "void";
-      args = [];
-    };
-
-    lv_deinit = {
-      ret = "void";
-      args = [];
-    };
-
-    lv_timer_handler = {
-      ret = "u32";
-      args = [];
-    };
-
-    lv_tick_inc = {
-      ret = "void";
-      args = [{ name = "tick_period"; type = "u32"; }];
-    };
-
-    # === Display ===
-    lv_display_get_default = {
-      ret = "^lv_display_t";
-      args = [];
-    };
-
-    lv_display_get_horizontal_resolution = {
-      ret = "i32";
-      args = [{ name = "disp"; type = "^lv_display_t"; }];
-    };
-
-    lv_display_get_vertical_resolution = {
-      ret = "i32";
-      args = [{ name = "disp"; type = "^lv_display_t"; }];
-    };
-
-    lv_screen_active = {
-      ret = "^lv_obj_t";
-      args = [];
-    };
-
-    lv_screen_load = {
-      ret = "void";
-      args = [{ name = "scr"; type = "^lv_obj_t"; }];
-    };
-
-    # === GLFW Window (OpenGL ES backend) ===
-    lv_opengles_glfw_window_create = {
-      ret = "^lv_display_t";
-      args = [
-        { name = "hor_res"; type = "i32"; }
-        { name = "ver_res"; type = "i32"; }
-      ];
-    };
-
-    lv_opengles_glfw_window_set_title = {
-      ret = "void";
-      args = [
-        { name = "disp"; type = "^lv_display_t"; }
-        { name = "title"; type = "cstring"; }
-      ];
-    };
-
-    # === Object Core ===
-    lv_obj_create = {
-      ret = "^lv_obj_t";
-      args = [{ name = "parent"; type = "^lv_obj_t"; }];
-    };
-
-    lv_obj_delete = {
-      ret = "void";
-      args = [{ name = "obj"; type = "^lv_obj_t"; }];
-    };
-
-    lv_obj_clean = {
-      ret = "void";
-      args = [{ name = "obj"; type = "^lv_obj_t"; }];
-    };
-
-    lv_obj_set_parent = {
-      ret = "void";
-      args = [
-        { name = "obj"; type = "^lv_obj_t"; }
-        { name = "parent"; type = "^lv_obj_t"; }
-      ];
-    };
-
-    lv_obj_get_parent = {
-      ret = "^lv_obj_t";
-      args = [{ name = "obj"; type = "^lv_obj_t"; }];
-    };
-
-    # === Size / Position ===
-    lv_obj_set_size = {
-      ret = "void";
-      args = [
-        { name = "obj"; type = "^lv_obj_t"; }
-        { name = "w"; type = "i32"; }
-        { name = "h"; type = "i32"; }
-      ];
-    };
-
-    lv_obj_set_width = {
-      ret = "void";
-      args = [
-        { name = "obj"; type = "^lv_obj_t"; }
-        { name = "w"; type = "i32"; }
-      ];
-    };
-
-    lv_obj_set_height = {
-      ret = "void";
-      args = [
-        { name = "obj"; type = "^lv_obj_t"; }
-        { name = "h"; type = "i32"; }
-      ];
-    };
-
-    lv_obj_set_pos = {
-      ret = "void";
-      args = [
-        { name = "obj"; type = "^lv_obj_t"; }
-        { name = "x"; type = "i32"; }
-        { name = "y"; type = "i32"; }
-      ];
-    };
-
-    lv_obj_set_x = {
-      ret = "void";
-      args = [
-        { name = "obj"; type = "^lv_obj_t"; }
-        { name = "x"; type = "i32"; }
-      ];
-    };
-
-    lv_obj_set_y = {
-      ret = "void";
-      args = [
-        { name = "obj"; type = "^lv_obj_t"; }
-        { name = "y"; type = "i32"; }
-      ];
-    };
-
-    lv_obj_set_align = {
-      ret = "void";
-      args = [
-        { name = "obj"; type = "^lv_obj_t"; }
-        { name = "align"; type = "lv_align_t"; }
-      ];
-    };
-
-    lv_obj_align = {
-      ret = "void";
-      args = [
-        { name = "obj"; type = "^lv_obj_t"; }
-        { name = "align"; type = "lv_align_t"; }
-        { name = "x_ofs"; type = "i32"; }
-        { name = "y_ofs"; type = "i32"; }
-      ];
-    };
-
-    lv_obj_get_width = {
-      ret = "i32";
-      args = [{ name = "obj"; type = "^lv_obj_t"; }];
-    };
-
-    lv_obj_get_height = {
-      ret = "i32";
-      args = [{ name = "obj"; type = "^lv_obj_t"; }];
-    };
-
-    lv_obj_get_x = {
-      ret = "i32";
-      args = [{ name = "obj"; type = "^lv_obj_t"; }];
-    };
-
-    lv_obj_get_y = {
-      ret = "i32";
-      args = [{ name = "obj"; type = "^lv_obj_t"; }];
-    };
-
-    # === Flags ===
-    lv_obj_add_flag = {
-      ret = "void";
-      args = [
-        { name = "obj"; type = "^lv_obj_t"; }
-        { name = "f"; type = "lv_obj_flag_t"; }
-      ];
-    };
-
-    lv_obj_remove_flag = {
-      ret = "void";
-      args = [
-        { name = "obj"; type = "^lv_obj_t"; }
-        { name = "f"; type = "lv_obj_flag_t"; }
-      ];
-    };
-
-    lv_obj_has_flag = {
-      ret = "bool";
-      args = [
-        { name = "obj"; type = "^lv_obj_t"; }
-        { name = "f"; type = "lv_obj_flag_t"; }
-      ];
-    };
-
-    # === State ===
-    lv_obj_add_state = {
-      ret = "void";
-      args = [
-        { name = "obj"; type = "^lv_obj_t"; }
-        { name = "state"; type = "lv_state_t"; }
-      ];
-    };
-
-    lv_obj_remove_state = {
-      ret = "void";
-      args = [
-        { name = "obj"; type = "^lv_obj_t"; }
-        { name = "state"; type = "lv_state_t"; }
-      ];
-    };
-
-    lv_obj_has_state = {
-      ret = "bool";
-      args = [
-        { name = "obj"; type = "^lv_obj_t"; }
-        { name = "state"; type = "lv_state_t"; }
-      ];
-    };
-
-    # === Events ===
-    lv_obj_add_event_cb = {
-      ret = "void";
-      args = [
-        { name = "obj"; type = "^lv_obj_t"; }
-        { name = "event_cb"; type = "lv_event_cb_t"; }
-        { name = "filter"; type = "lv_event_code_t"; }
-        { name = "user_data"; type = "rawptr"; }
-      ];
-    };
-
-    lv_event_get_code = {
-      ret = "lv_event_code_t";
-      args = [{ name = "e"; type = "^lv_event_t"; }];
-    };
-
-    lv_event_get_target = {
-      ret = "^lv_obj_t";
-      args = [{ name = "e"; type = "^lv_event_t"; }];
-    };
-
-    lv_event_get_user_data = {
-      ret = "rawptr";
-      args = [{ name = "e"; type = "^lv_event_t"; }];
-    };
-
-    # === Flex Layout ===
-    lv_obj_set_flex_flow = {
-      ret = "void";
-      args = [
-        { name = "obj"; type = "^lv_obj_t"; }
-        { name = "flow"; type = "lv_flex_flow_t"; }
-      ];
-    };
-
-    lv_obj_set_flex_align = {
-      ret = "void";
-      args = [
-        { name = "obj"; type = "^lv_obj_t"; }
-        { name = "main_place"; type = "lv_flex_align_t"; }
-        { name = "cross_place"; type = "lv_flex_align_t"; }
-        { name = "track_place"; type = "lv_flex_align_t"; }
-      ];
-    };
-
-    lv_obj_set_flex_grow = {
-      ret = "void";
-      args = [
-        { name = "obj"; type = "^lv_obj_t"; }
-        { name = "grow"; type = "u8"; }
-      ];
-    };
-
-    # === Styling ===
-    lv_obj_set_style_bg_color = {
-      ret = "void";
-      args = [
-        { name = "obj"; type = "^lv_obj_t"; }
-        { name = "value"; type = "lv_color_t"; }
-        { name = "selector"; type = "u32"; }
-      ];
-    };
-
-    lv_obj_set_style_bg_opa = {
-      ret = "void";
-      args = [
-        { name = "obj"; type = "^lv_obj_t"; }
-        { name = "value"; type = "lv_opa_t"; }
-        { name = "selector"; type = "u32"; }
-      ];
-    };
-
-    lv_obj_set_style_text_color = {
-      ret = "void";
-      args = [
-        { name = "obj"; type = "^lv_obj_t"; }
-        { name = "value"; type = "lv_color_t"; }
-        { name = "selector"; type = "u32"; }
-      ];
-    };
-
-    lv_obj_set_style_text_font = {
-      ret = "void";
-      args = [
-        { name = "obj"; type = "^lv_obj_t"; }
-        { name = "value"; type = "^lv_font_t"; }
-        { name = "selector"; type = "u32"; }
-      ];
-    };
-
-    lv_obj_set_style_radius = {
-      ret = "void";
-      args = [
-        { name = "obj"; type = "^lv_obj_t"; }
-        { name = "value"; type = "i32"; }
-        { name = "selector"; type = "u32"; }
-      ];
-    };
-
-    lv_obj_set_style_border_color = {
-      ret = "void";
-      args = [
-        { name = "obj"; type = "^lv_obj_t"; }
-        { name = "value"; type = "lv_color_t"; }
-        { name = "selector"; type = "u32"; }
-      ];
-    };
-
-    lv_obj_set_style_border_width = {
-      ret = "void";
-      args = [
-        { name = "obj"; type = "^lv_obj_t"; }
-        { name = "value"; type = "i32"; }
-        { name = "selector"; type = "u32"; }
-      ];
-    };
-
-    # Note: lv_obj_set_style_pad_all is a C macro, use Odin helper instead
-
-    lv_obj_set_style_pad_top = {
-      ret = "void";
-      args = [
-        { name = "obj"; type = "^lv_obj_t"; }
-        { name = "value"; type = "i32"; }
-        { name = "selector"; type = "u32"; }
-      ];
-    };
-
-    lv_obj_set_style_pad_bottom = {
-      ret = "void";
-      args = [
-        { name = "obj"; type = "^lv_obj_t"; }
-        { name = "value"; type = "i32"; }
-        { name = "selector"; type = "u32"; }
-      ];
-    };
-
-    lv_obj_set_style_pad_left = {
-      ret = "void";
-      args = [
-        { name = "obj"; type = "^lv_obj_t"; }
-        { name = "value"; type = "i32"; }
-        { name = "selector"; type = "u32"; }
-      ];
-    };
-
-    lv_obj_set_style_pad_right = {
-      ret = "void";
-      args = [
-        { name = "obj"; type = "^lv_obj_t"; }
-        { name = "value"; type = "i32"; }
-        { name = "selector"; type = "u32"; }
-      ];
-    };
-
-    lv_obj_set_style_pad_row = {
-      ret = "void";
-      args = [
-        { name = "obj"; type = "^lv_obj_t"; }
-        { name = "value"; type = "i32"; }
-        { name = "selector"; type = "u32"; }
-      ];
-    };
-
-    lv_obj_set_style_pad_column = {
-      ret = "void";
-      args = [
-        { name = "obj"; type = "^lv_obj_t"; }
-        { name = "value"; type = "i32"; }
-        { name = "selector"; type = "u32"; }
-      ];
-    };
-
-    # === Color helpers ===
-    lv_color_hex = {
-      ret = "lv_color_t";
-      args = [{ name = "c"; type = "u32"; }];
-    };
-
-    lv_color_make = {
-      ret = "lv_color_t";
-      args = [
-        { name = "r"; type = "u8"; }
-        { name = "g"; type = "u8"; }
-        { name = "b"; type = "u8"; }
-      ];
-    };
-
-    # === Widgets: Label ===
-    lv_label_create = {
-      ret = "^lv_obj_t";
-      args = [{ name = "parent"; type = "^lv_obj_t"; }];
-    };
-
-    lv_label_set_text = {
-      ret = "void";
-      args = [
-        { name = "obj"; type = "^lv_obj_t"; }
-        { name = "text"; type = "cstring"; }
-      ];
-    };
-
-    lv_label_set_text_static = {
-      ret = "void";
-      args = [
-        { name = "obj"; type = "^lv_obj_t"; }
-        { name = "text"; type = "cstring"; }
-      ];
-    };
-
-    lv_label_get_text = {
-      ret = "cstring";
-      args = [{ name = "obj"; type = "^lv_obj_t"; }];
-    };
-
-    lv_label_set_long_mode = {
-      ret = "void";
-      args = [
-        { name = "obj"; type = "^lv_obj_t"; }
-        { name = "mode"; type = "i32"; }  # lv_label_long_mode_t
-      ];
-    };
-
-    # === Widgets: Button ===
-    lv_button_create = {
-      ret = "^lv_obj_t";
-      args = [{ name = "parent"; type = "^lv_obj_t"; }];
-    };
-
-    # === Widgets: Textarea ===
-    lv_textarea_create = {
-      ret = "^lv_obj_t";
-      args = [{ name = "parent"; type = "^lv_obj_t"; }];
-    };
-
-    lv_textarea_set_text = {
-      ret = "void";
-      args = [
-        { name = "obj"; type = "^lv_obj_t"; }
-        { name = "text"; type = "cstring"; }
-      ];
-    };
-
-    lv_textarea_get_text = {
-      ret = "cstring";
-      args = [{ name = "obj"; type = "^lv_obj_t"; }];
-    };
-
-    lv_textarea_set_placeholder_text = {
-      ret = "void";
-      args = [
-        { name = "obj"; type = "^lv_obj_t"; }
-        { name = "text"; type = "cstring"; }
-      ];
-    };
-
-    lv_textarea_set_one_line = {
-      ret = "void";
-      args = [
-        { name = "obj"; type = "^lv_obj_t"; }
-        { name = "en"; type = "bool"; }
-      ];
-    };
-
-    lv_textarea_set_password_mode = {
-      ret = "void";
-      args = [
-        { name = "obj"; type = "^lv_obj_t"; }
-        { name = "en"; type = "bool"; }
-      ];
-    };
-
-    lv_textarea_add_char = {
-      ret = "void";
-      args = [
-        { name = "obj"; type = "^lv_obj_t"; }
-        { name = "c"; type = "u32"; }
-      ];
-    };
-
-    lv_textarea_add_text = {
-      ret = "void";
-      args = [
-        { name = "obj"; type = "^lv_obj_t"; }
-        { name = "text"; type = "cstring"; }
-      ];
-    };
-
-    lv_textarea_delete_char = {
-      ret = "void";
-      args = [{ name = "obj"; type = "^lv_obj_t"; }];
-    };
-
-    lv_textarea_delete_char_forward = {
-      ret = "void";
-      args = [{ name = "obj"; type = "^lv_obj_t"; }];
-    };
-
-    # === Widgets: Image ===
-    lv_image_create = {
-      ret = "^lv_obj_t";
-      args = [{ name = "parent"; type = "^lv_obj_t"; }];
-    };
-
-    lv_image_set_src = {
-      ret = "void";
-      args = [
-        { name = "obj"; type = "^lv_obj_t"; }
-        { name = "src"; type = "rawptr"; }  # Can be path string or lv_image_dsc_t*
-      ];
-    };
-
-    lv_image_set_scale = {
-      ret = "void";
-      args = [
-        { name = "obj"; type = "^lv_obj_t"; }
-        { name = "zoom"; type = "u32"; }  # 256 = 100%
-      ];
-    };
-
-    lv_image_set_rotation = {
-      ret = "void";
-      args = [
-        { name = "obj"; type = "^lv_obj_t"; }
-        { name = "angle"; type = "i32"; }  # 0.1 degree units
-      ];
-    };
-
-    # === Scrolling ===
-    lv_obj_scroll_to = {
-      ret = "void";
-      args = [
-        { name = "obj"; type = "^lv_obj_t"; }
-        { name = "x"; type = "i32"; }
-        { name = "y"; type = "i32"; }
-        { name = "anim_en"; type = "bool"; }
-      ];
-    };
-
-    lv_obj_scroll_by = {
-      ret = "void";
-      args = [
-        { name = "obj"; type = "^lv_obj_t"; }
-        { name = "x"; type = "i32"; }
-        { name = "y"; type = "i32"; }
-        { name = "anim_en"; type = "bool"; }
-      ];
-    };
-
-    lv_obj_get_scroll_x = {
-      ret = "i32";
-      args = [{ name = "obj"; type = "^lv_obj_t"; }];
-    };
-
-    lv_obj_get_scroll_y = {
-      ret = "i32";
-      args = [{ name = "obj"; type = "^lv_obj_t"; }];
-    };
-
-    # === Invalidation / Redraw ===
-    lv_obj_invalidate = {
-      ret = "void";
-      args = [{ name = "obj"; type = "^lv_obj_t"; }];
-    };
-
-    lv_refr_now = {
-      ret = "void";
-      args = [{ name = "disp"; type = "^lv_display_t"; }];
-    };
-  };
+  # Manual additions - raw Odin code appended as-is
+  manual = ''
+    // === Size Constants ===
+    // LV_SIZE_CONTENT = LV_COORD_SET_SPEC(LV_COORD_MAX) = LV_COORD_MAX | LV_COORD_TYPE_SPEC
+    LV_SIZE_CONTENT :: LV_COORD_MAX | LV_COORD_TYPE_SPEC
+
+    // === Opacity Constants ===
+    LV_OPA_TRANSP : u8 : 0
+    LV_OPA_COVER  : u8 : 255
+
+  '';
 }
