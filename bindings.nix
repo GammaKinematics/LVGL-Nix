@@ -42,6 +42,7 @@
     # Internal/external types (not LVGL public API)
     "struct _lv_obj_t" = "lv_obj_t";
     "struct _lv_obj_t *" = "^lv_obj_t";
+    "struct _lv_display_t *" = "^lv_display_t";
     "GLFWwindow *" = "rawptr";  # External GLFW type
   };
 
@@ -83,6 +84,11 @@
     { name = "lv_event_code_t"; header = "src/misc/lv_event.h"; }
     { name = "lv_text_align_t"; header = "src/misc/lv_text.h"; }
     { name = "lv_label_long_mode_t"; header = "src/widgets/label/lv_label.h"; }
+    # Input device
+    { name = "lv_indev_type_t"; header = "src/indev/lv_indev.h"; }
+    { name = "lv_indev_state_t"; header = "src/indev/lv_indev.h"; }
+    { name = "lv_indev_mode_t"; header = "src/indev/lv_indev.h"; }
+    { name = "lv_key_t"; header = "src/core/lv_group.h"; }
   ];
 
   # Structs - parsed from headers
@@ -120,6 +126,7 @@
     { name = "lv_screen_active"; header = "src/display/lv_display.h"; }
     { name = "lv_screen_load"; header = "src/display/lv_display.h"; }
     { name = "lv_display_set_theme"; header = "src/display/lv_display.h"; }
+    { name = "lv_display_set_color_format"; header = "src/display/lv_display.h"; }
 
     # Themes
     { name = "lv_theme_create"; header = "src/themes/lv_theme.h"; }
@@ -134,23 +141,10 @@
     { name = "lv_opengles_texture_get_texture_id"; header = "src/drivers/opengles/lv_opengles_texture.h"; }
     { name = "lv_opengles_window_add_texture"; header = "src/drivers/opengles/lv_opengles_window.h"; }
     { name = "lv_opengles_window_texture_remove"; header = "src/drivers/opengles/lv_opengles_window.h"; }
-
-    # X11 Window
-    { name = "lv_x11_window_create"; header = "src/drivers/x11/lv_x11.h"; }
-    { name = "lv_x11_inputs_create"; header = "src/drivers/x11/lv_x11.h"; }
-
-    # SDL Window
-    { name = "lv_sdl_window_create"; header = "src/drivers/sdl/lv_sdl_window.h"; }
-    { name = "lv_sdl_window_set_title"; header = "src/drivers/sdl/lv_sdl_window.h"; }
-    { name = "lv_sdl_window_set_resizeable"; header = "src/drivers/sdl/lv_sdl_window.h"; }
-    { name = "lv_sdl_window_set_zoom"; header = "src/drivers/sdl/lv_sdl_window.h"; }
-    { name = "lv_sdl_window_get_zoom"; header = "src/drivers/sdl/lv_sdl_window.h"; }
-    { name = "lv_sdl_quit"; header = "src/drivers/sdl/lv_sdl_window.h"; }
-
-    # SDL Input Devices (must be created explicitly!)
-    { name = "lv_sdl_mouse_create"; header = "src/drivers/sdl/lv_sdl_mouse.h"; }
-    { name = "lv_sdl_keyboard_create"; header = "src/drivers/sdl/lv_sdl_keyboard.h"; }
-    { name = "lv_sdl_mousewheel_create"; header = "src/drivers/sdl/lv_sdl_mousewheel.h"; }
+    { name = "lv_opengles_window_texture_set_x"; header = "src/drivers/opengles/lv_opengles_window.h"; }
+    { name = "lv_opengles_window_texture_set_y"; header = "src/drivers/opengles/lv_opengles_window.h"; }
+    { name = "lv_opengles_window_texture_set_opa"; header = "src/drivers/opengles/lv_opengles_window.h"; }
+    { name = "lv_opengles_texture_create_from_texture_id"; header = "src/drivers/opengles/lv_opengles_texture.h"; }
 
     # Object Core
     { name = "lv_obj_create"; header = "src/core/lv_obj.h"; }
@@ -260,12 +254,36 @@
     # Invalidation / Redraw
     { name = "lv_obj_invalidate"; header = "src/core/lv_obj_pos.h"; }
     { name = "lv_refr_now"; header = "src/core/lv_refr.h"; }
+
+    # Input Device
+    { name = "lv_indev_create"; header = "src/indev/lv_indev.h"; }
+    { name = "lv_indev_delete"; header = "src/indev/lv_indev.h"; }
+    { name = "lv_indev_set_type"; header = "src/indev/lv_indev.h"; }
+    { name = "lv_indev_set_read_cb"; header = "src/indev/lv_indev.h"; }
+    { name = "lv_indev_set_driver_data"; header = "src/indev/lv_indev.h"; }
+    { name = "lv_indev_get_driver_data"; header = "src/indev/lv_indev.h"; }
+    { name = "lv_indev_set_display"; header = "src/indev/lv_indev.h"; }
+    { name = "lv_indev_set_group"; header = "src/indev/lv_indev.h"; }
+    { name = "lv_indev_set_mode"; header = "src/indev/lv_indev.h"; }
+    { name = "lv_indev_read"; header = "src/indev/lv_indev.h"; }
+
+    # Groups (keyboard navigation)
+    { name = "lv_group_create"; header = "src/core/lv_group.h"; }
+    { name = "lv_group_delete"; header = "src/core/lv_group.h"; }
+    { name = "lv_group_add_obj"; header = "src/core/lv_group.h"; }
+    { name = "lv_group_remove_obj"; header = "src/core/lv_group.h"; }
+    { name = "lv_group_focus_obj"; header = "src/core/lv_group.h"; }
+    { name = "lv_group_get_focused"; header = "src/core/lv_group.h"; }
+    { name = "lv_group_send_data"; header = "src/core/lv_group.h"; }
+    { name = "lv_group_set_editing"; header = "src/core/lv_group.h"; }
+    { name = "lv_group_get_editing"; header = "src/core/lv_group.h"; }
   ];
 
   # Type aliases
   aliases = {
     lv_event_cb_t = "proc \"c\" (e: ^lv_event_t)";
     lv_theme_apply_cb_t = "proc \"c\" (theme: ^lv_theme_t, obj: ^lv_obj_t)";
+    lv_indev_read_cb_t = "proc \"c\" (indev: ^lv_indev_t, data: ^lv_indev_data_t)";
   };
 
   # Manual additions - raw Odin code appended as-is
@@ -278,5 +296,22 @@
     LV_OPA_TRANSP : u8 : 0
     LV_OPA_COVER  : u8 : 255
 
+    // === Color Format (subset — auto-gen chokes on hex literals) ===
+    lv_color_format_t :: enum i32 {
+        LV_COLOR_FORMAT_UNKNOWN          = 0x00,
+        LV_COLOR_FORMAT_RGB565           = 0x03,
+        LV_COLOR_FORMAT_RGB888           = 0x0F,
+        LV_COLOR_FORMAT_ARGB8888         = 0x10,
+        LV_COLOR_FORMAT_XRGB8888         = 0x11,
+    }
+
+    // === Input Device Data ===
+    lv_indev_data_t :: struct {
+        point: lv_point_t,
+        key: u32,
+        btn_id: u32,
+        enc_diff: i16,
+        state: lv_indev_state_t,
+    }
   '';
 }

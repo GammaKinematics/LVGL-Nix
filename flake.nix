@@ -69,10 +69,12 @@
         darkMode ? true,       # Light or dark mode
         customTheme ? {},      # Override default theme values
       }: let
+        # Theme config (exposed via passthru for downstream consumers)
+        themeConfig = (import ./default_theme.nix { inherit darkMode; }) // customTheme;
+
         # Generate theme C file
         themeCFile = import ./theme.nix {
-          inherit pkgs;
-          themeConfig = (import ./default_theme.nix { inherit darkMode; }) // customTheme;
+          inherit pkgs themeConfig;
         };
       in let
         # Build optimization flags
@@ -354,6 +356,8 @@ HEADER_EOF
             cp ${odinBindingsFile} $out/odin/lvgl.odin
           ''}
         '';
+
+        passthru = { theme = themeConfig; };
 
         meta = {
           description = "LVGL - Light and Versatile Graphics Library";

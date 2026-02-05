@@ -79,9 +79,9 @@ static void theme_apply(lv_theme_t * th, lv_obj_t * obj);
 
 static void style_init(nix_theme_t * theme)
 {
-    /* Screen style */
+    /* Screen style - transparent for GPU compositing (web content texture behind) */
     style_init_reset(&theme->styles.scr);
-    lv_style_set_bg_opa(&theme->styles.scr, LV_OPA_COVER);
+    lv_style_set_bg_opa(&theme->styles.scr, LV_OPA_TRANSP);
     lv_style_set_bg_color(&theme->styles.scr, lv_color_hex(${hex c.bg_prim}));
     lv_style_set_text_color(&theme->styles.scr, lv_color_hex(${hex c.text_pri}));
 
