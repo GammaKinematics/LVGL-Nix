@@ -203,6 +203,8 @@ static void theme_apply(lv_theme_t * th, lv_obj_t * obj)
 
     /* Generic lv_obj: apply transparent container style */
     lv_obj_add_style(obj, &theme->styles.container, 0);
+    lv_obj_add_style(obj, &theme->styles.scrollbar, LV_PART_SCROLLBAR);
+    lv_obj_add_style(obj, &theme->styles.scrollbar_active, LV_PART_SCROLLBAR | LV_STATE_SCROLLED);
 }
 
 /**********************

@@ -84,6 +84,7 @@
     { name = "lv_event_code_t"; header = "src/misc/lv_event.h"; }
     { name = "lv_text_align_t"; header = "src/misc/lv_text.h"; }
     { name = "lv_label_long_mode_t"; header = "src/widgets/label/lv_label.h"; }
+    { name = "lv_scrollbar_mode_t"; header = "src/core/lv_obj_scroll.h"; }
     # Input device
     { name = "lv_indev_type_t"; header = "src/indev/lv_indev.h"; }
     { name = "lv_indev_state_t"; header = "src/indev/lv_indev.h"; }
@@ -117,6 +118,7 @@
     { name = "lv_tick_inc"; header = "src/tick/lv_tick.h"; }
 
     # Display
+    { name = "lv_display_create"; header = "src/display/lv_display.h"; }
     { name = "lv_display_get_default"; header = "src/display/lv_display.h"; }
     { name = "lv_display_set_default"; header = "src/display/lv_display.h"; }
     { name = "lv_display_get_horizontal_resolution"; header = "src/display/lv_display.h"; }
@@ -127,6 +129,12 @@
     { name = "lv_screen_load"; header = "src/display/lv_display.h"; }
     { name = "lv_display_set_theme"; header = "src/display/lv_display.h"; }
     { name = "lv_display_set_color_format"; header = "src/display/lv_display.h"; }
+    { name = "lv_display_set_buffers"; header = "src/display/lv_display.h"; }
+    { name = "lv_display_set_flush_cb"; header = "src/display/lv_display.h"; }
+    { name = "lv_display_flush_ready"; header = "src/display/lv_display.h"; }
+    { name = "lv_display_flush_is_last"; header = "src/display/lv_display.h"; }
+    { name = "lv_display_set_user_data"; header = "src/display/lv_display.h"; }
+    { name = "lv_display_get_user_data"; header = "src/display/lv_display.h"; }
 
     # Themes
     { name = "lv_theme_create"; header = "src/themes/lv_theme.h"; }
@@ -146,6 +154,25 @@
     { name = "lv_opengles_window_texture_set_opa"; header = "src/drivers/opengles/lv_opengles_window.h"; }
     { name = "lv_opengles_texture_create_from_texture_id"; header = "src/drivers/opengles/lv_opengles_texture.h"; }
 
+    # SDL Window
+    { name = "lv_sdl_window_create"; header = "src/drivers/sdl/lv_sdl_window.h"; }
+    { name = "lv_sdl_window_set_resizeable"; header = "src/drivers/sdl/lv_sdl_window.h"; }
+    { name = "lv_sdl_window_set_title"; header = "src/drivers/sdl/lv_sdl_window.h"; }
+    { name = "lv_sdl_window_set_zoom"; header = "src/drivers/sdl/lv_sdl_window.h"; }
+    { name = "lv_sdl_window_get_zoom"; header = "src/drivers/sdl/lv_sdl_window.h"; }
+    { name = "lv_sdl_quit"; header = "src/drivers/sdl/lv_sdl_window.h"; }
+
+    # SDL Input
+    { name = "lv_sdl_mouse_create"; header = "src/drivers/sdl/lv_sdl_mouse.h"; }
+    { name = "lv_sdl_keyboard_create"; header = "src/drivers/sdl/lv_sdl_keyboard.h"; }
+
+    # X11 Window
+    { name = "lv_x11_window_create"; header = "src/drivers/x11/lv_x11.h"; }
+    { name = "lv_x11_inputs_create"; header = "src/drivers/x11/lv_x11.h"; }
+
+    # Layers
+    { name = "lv_layer_top"; header = "src/display/lv_display.h"; }
+
     # Object Core
     { name = "lv_obj_create"; header = "src/core/lv_obj.h"; }
     { name = "lv_obj_delete"; header = "src/core/lv_obj_tree.h"; }
@@ -162,7 +189,9 @@
     { name = "lv_obj_set_y"; header = "src/core/lv_obj_pos.h"; }
     { name = "lv_obj_set_align"; header = "src/core/lv_obj_pos.h"; }
     { name = "lv_obj_align"; header = "src/core/lv_obj_pos.h"; }
+    { name = "lv_obj_align_to"; header = "src/core/lv_obj_pos.h"; }
     { name = "lv_obj_center"; header = "src/core/lv_obj_pos.h"; }
+    { name = "lv_obj_update_layout"; header = "src/core/lv_obj_pos.h"; }
     { name = "lv_obj_get_width"; header = "src/core/lv_obj_pos.h"; }
     { name = "lv_obj_get_height"; header = "src/core/lv_obj_pos.h"; }
     { name = "lv_obj_get_x"; header = "src/core/lv_obj_pos.h"; }
@@ -173,10 +202,15 @@
     { name = "lv_obj_remove_flag"; header = "src/core/lv_obj.h"; }
     { name = "lv_obj_has_flag"; header = "src/core/lv_obj.h"; }
 
+    # Scrollbar
+    { name = "lv_obj_set_scrollbar_mode"; header = "src/core/lv_obj_scroll.h"; }
+
     # Object State
     { name = "lv_obj_add_state"; header = "src/core/lv_obj.h"; }
     { name = "lv_obj_remove_state"; header = "src/core/lv_obj.h"; }
     { name = "lv_obj_has_state"; header = "src/core/lv_obj.h"; }
+    { name = "lv_obj_set_user_data"; header = "src/core/lv_obj.h"; }
+    { name = "lv_obj_get_user_data"; header = "src/core/lv_obj.h"; }
 
     # Events
     { name = "lv_obj_add_event_cb"; header = "src/core/lv_obj_event.h"; }
@@ -207,6 +241,8 @@
     { name = "lv_obj_set_style_outline_width"; header = "src/core/lv_obj_style_gen.h"; }
     { name = "lv_obj_set_style_outline_color"; header = "src/core/lv_obj_style_gen.h"; }
     { name = "lv_obj_set_style_outline_opa"; header = "src/core/lv_obj_style_gen.h"; }
+    { name = "lv_obj_set_style_text_opa"; header = "src/core/lv_obj_style_gen.h"; }
+    { name = "lv_obj_set_style_opa"; header = "src/core/lv_obj_style_gen.h"; }
 
     # Coordinate helpers
     { name = "lv_pct"; header = "src/misc/lv_area.h"; }
@@ -238,6 +274,7 @@
     { name = "lv_textarea_add_text"; header = "src/widgets/textarea/lv_textarea.h"; }
     { name = "lv_textarea_delete_char"; header = "src/widgets/textarea/lv_textarea.h"; }
     { name = "lv_textarea_delete_char_forward"; header = "src/widgets/textarea/lv_textarea.h"; }
+    { name = "lv_textarea_set_cursor_pos"; header = "src/widgets/textarea/lv_textarea.h"; }
 
     # Widgets: Image
     { name = "lv_image_create"; header = "src/widgets/image/lv_image.h"; }
@@ -266,6 +303,9 @@
     { name = "lv_indev_set_group"; header = "src/indev/lv_indev.h"; }
     { name = "lv_indev_set_mode"; header = "src/indev/lv_indev.h"; }
     { name = "lv_indev_read"; header = "src/indev/lv_indev.h"; }
+    { name = "lv_indev_active"; header = "src/indev/lv_indev.h"; }
+    { name = "lv_indev_get_point"; header = "src/indev/lv_indev.h"; }
+    { name = "lv_indev_search_obj"; header = "src/indev/lv_indev.h"; }
 
     # Groups (keyboard navigation)
     { name = "lv_group_create"; header = "src/core/lv_group.h"; }
@@ -284,6 +324,7 @@
     lv_event_cb_t = "proc \"c\" (e: ^lv_event_t)";
     lv_theme_apply_cb_t = "proc \"c\" (theme: ^lv_theme_t, obj: ^lv_obj_t)";
     lv_indev_read_cb_t = "proc \"c\" (indev: ^lv_indev_t, data: ^lv_indev_data_t)";
+    lv_display_flush_cb_t = "proc \"c\" (disp: ^lv_display_t, area: ^lv_area_t, px_map: [^]u8)";
   };
 
   # Manual additions - raw Odin code appended as-is
@@ -294,6 +335,7 @@
 
     // === Opacity Constants ===
     LV_OPA_TRANSP : u8 : 0
+    LV_OPA_50     : u8 : 127
     LV_OPA_COVER  : u8 : 255
 
     // === Color Format (subset — auto-gen chokes on hex literals) ===
@@ -306,12 +348,34 @@
     }
 
     // === Input Device Data ===
+    LV_INDEV_GESTURE_CNT :: 6
+
+    lv_indev_gesture_type_t :: enum i32 {
+        LV_INDEV_GESTURE_NONE = 0,
+        LV_INDEV_GESTURE_PINCH,
+        LV_INDEV_GESTURE_SWIPE,
+        LV_INDEV_GESTURE_ROTATE,
+        LV_INDEV_GESTURE_TWO_FINGERS_SWIPE,
+        LV_INDEV_GESTURE_SCROLL,
+    }
+
     lv_indev_data_t :: struct {
+        gesture_type: [LV_INDEV_GESTURE_CNT]lv_indev_gesture_type_t,
+        gesture_data: [LV_INDEV_GESTURE_CNT]rawptr,
+        state: lv_indev_state_t,
         point: lv_point_t,
         key: u32,
         btn_id: u32,
         enc_diff: i16,
-        state: lv_indev_state_t,
+        timestamp: u32,
+        continue_reading: bool,
+    }
+
+    // === Display Render Mode ===
+    lv_display_render_mode_t :: enum i32 {
+        LV_DISPLAY_RENDER_MODE_PARTIAL = 0,
+        LV_DISPLAY_RENDER_MODE_DIRECT  = 1,
+        LV_DISPLAY_RENDER_MODE_FULL    = 2,
     }
   '';
 }

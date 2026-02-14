@@ -368,8 +368,8 @@ ${lib.concatStringsSep "\n" (map genField fields)}
       retType =
         let
           cleaned = builtins.replaceStrings
-            ["LV_ATTRIBUTE_TIMER_HANDLER " "LV_ATTRIBUTE_TICK_INC " "LV_ATTRIBUTE_FAST_MEM " "static inline "]
-            ["" "" "" ""]
+            ["LV_ATTRIBUTE_TIMER_HANDLER " "LV_ATTRIBUTE_TICK_INC " "LV_ATTRIBUTE_FAST_MEM " "LV_ATTRIBUTE_FLUSH_READY " "static inline "]
+            ["" "" "" "" ""]
             retTypeRaw;
         in mapType (trim cleaned);
 

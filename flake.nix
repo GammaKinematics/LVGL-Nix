@@ -336,6 +336,29 @@ HEADER_EOF
 #if LV_USE_THEME_NIX
     lv_theme_nix_deinit();
 #endif'
+
+          # Patch SDL mouse driver - add right-click support
+          substituteInPlace src/drivers/sdl/lv_sdl_mouse.c \
+            --replace-fail \
+              'if(event->button.button == SDL_BUTTON_LEFT) {
+                indev_dev->left_button_down = true;' \
+              'if(event->button.button == SDL_BUTTON_LEFT || event->button.button == SDL_BUTTON_RIGHT) {
+                indev_dev->left_button_down = true;'
+
+          substituteInPlace src/drivers/sdl/lv_sdl_mouse.c \
+            --replace-fail \
+              'if(event->button.button == SDL_BUTTON_LEFT)
+                indev_dev->left_button_down = false;' \
+              'if(event->button.button == SDL_BUTTON_LEFT || event->button.button == SDL_BUTTON_RIGHT)
+                indev_dev->left_button_down = false;'
+
+          # Patch X11 display driver - respect LV_X11_HIDE_CURSOR flag
+          substituteInPlace src/drivers/x11/lv_x11_display.c \
+            --replace-fail \
+              'x11_hide_cursor(disp);' \
+              '#if LV_X11_HIDE_CURSOR
+    x11_hide_cursor(disp);
+#endif'
         '';
 
         env = pkgs.lib.optionalAttrs (optFlagsStr != "") {
